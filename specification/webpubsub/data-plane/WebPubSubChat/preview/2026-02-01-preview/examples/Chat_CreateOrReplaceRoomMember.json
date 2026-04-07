@@ -1,0 +1,27 @@
+{
+  "parameters": {
+    "api-version": "2026-02-01-preview",
+    "hub": "chat_hub",
+    "roomId": "room1",
+    "userId": "user1",
+    "resource": {
+      "role": "room.member"
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "userId": "user1",
+        "role": "room.member"
+      }
+    },
+    "201": {
+      "body": {
+        "userId": "user1",
+        "role": "room.member"
+      }
+    }
+  },
+  "operationId": "Chat_CreateOrReplaceRoomMember",
+  "title": "Chat_CreateOrReplaceRoomMember"
+}

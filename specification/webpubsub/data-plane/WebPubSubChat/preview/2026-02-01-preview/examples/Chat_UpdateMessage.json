@@ -4,8 +4,8 @@
     "hub": "chat_hub",
     "conversationId": "c.room1",
     "messageId": "msg1",
-    "contentType": "application/json",
-    "request": {
+    "contentType": "application/merge-patch+json",
+    "resource": {
       "createdBy": "user1",
       "content": {
         "text": "Updated message text"
@@ -14,6 +14,16 @@
   },
   "responses": {
     "200": {
+      "body": {
+        "messageId": "msg1",
+        "createdBy": "user1",
+        "content": {
+          "text": "Updated message text"
+        },
+        "createdAt": "2026-01-01T00:00:00Z"
+      }
+    },
+    "201": {
       "body": {
         "messageId": "msg1",
         "createdBy": "user1",

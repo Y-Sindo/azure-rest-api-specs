@@ -72,7 +72,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -128,7 +128,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -168,7 +168,7 @@
           "200": {
             "description": "The request has succeeded.",
             "schema": {
-              "$ref": "#/definitions/QueryChatMessageResponse"
+              "$ref": "#/definitions/PagedChatMessageInfo"
             }
           },
           "default": {
@@ -190,8 +190,7 @@
           }
         },
         "x-ms-pageable": {
-          "nextLinkName": "nextLink",
-          "itemName": "messages"
+          "nextLinkName": "nextLink"
         }
       }
     },
@@ -203,6 +202,9 @@
         ],
         "summary": "Update a message.",
         "description": "Update a message.",
+        "consumes": [
+          "application/merge-patch+json"
+        ],
         "parameters": [
           {
             "$ref": "#/parameters/Azure.Core.Foundations.ApiVersionParameter"
@@ -210,7 +212,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -232,12 +234,18 @@
             "minLength": 1
           },
           {
-            "name": "request",
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent"
+          },
+          {
+            "name": "resource",
             "in": "body",
-            "description": "Update message request.",
+            "description": "The resource instance.",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateChatMessageRequest"
+              "$ref": "#/definitions/ChatMessageInfoCreateOrUpdate"
             }
           }
         ],
@@ -246,6 +254,64 @@
             "description": "The request has succeeded.",
             "schema": {
               "$ref": "#/definitions/ChatMessageInfo"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "The request has succeeded and a new resource has been created as a result.",
+            "schema": {
+              "$ref": "#/definitions/ChatMessageInfo"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
             }
           },
           "default": {
@@ -281,7 +347,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -301,11 +367,43 @@
             "required": true,
             "type": "string",
             "minLength": 1
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent"
           }
         ],
         "responses": {
           "204": {
-            "description": "There is no content to send for this request, but the headers may be useful. "
+            "description": "There is no content to send for this request, but the headers may be useful. ",
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
           },
           "default": {
             "description": "An unexpected error response.",
@@ -342,17 +440,10 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
-          },
-          {
-            "name": "continuationToken",
-            "in": "query",
-            "description": "Continuation token for pagination.",
-            "required": false,
-            "type": "string"
           },
           {
             "name": "maxCount",
@@ -367,7 +458,7 @@
           "200": {
             "description": "The request has succeeded.",
             "schema": {
-              "$ref": "#/definitions/QueryChatRolesResponse"
+              "$ref": "#/definitions/PagedChatRoleInfo"
             }
           },
           "default": {
@@ -389,8 +480,7 @@
           }
         },
         "x-ms-pageable": {
-          "nextLinkName": "nextLink",
-          "itemName": "roles"
+          "nextLinkName": "nextLink"
         }
       }
     },
@@ -409,7 +499,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -417,7 +507,7 @@
           {
             "name": "role",
             "in": "path",
-            "description": "Role name.",
+            "description": "Role name. Must start with 'user.' or 'room.' prefix.",
             "required": true,
             "type": "string",
             "pattern": "^[a-z0-9_.-]{1,64}$"
@@ -450,12 +540,12 @@
         }
       },
       "put": {
-        "operationId": "Chat_CreateOrUpdateRole",
+        "operationId": "Chat_CreateOrReplaceRole",
         "tags": [
           "chat"
         ],
-        "summary": "Create or update a role.",
-        "description": "Create or update a role.",
+        "summary": "Create or replace a role.",
+        "description": "Create or replace a role.",
         "parameters": [
           {
             "$ref": "#/parameters/Azure.Core.Foundations.ApiVersionParameter"
@@ -463,7 +553,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -471,24 +561,91 @@
           {
             "name": "role",
             "in": "path",
-            "description": "Role name.",
+            "description": "Role name. Must start with 'user.' or 'room.' prefix.",
             "required": true,
             "type": "string",
             "pattern": "^[a-z0-9_.-]{1,64}$"
           },
           {
-            "name": "request",
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent"
+          },
+          {
+            "name": "resource",
             "in": "body",
-            "description": "Create or update role request.",
+            "description": "The resource instance.",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateOrUpdateChatRoleInfoRequest"
+              "$ref": "#/definitions/ChatRoleInfo"
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "There is no content to send for this request, but the headers may be useful. "
+          "200": {
+            "description": "The request has succeeded.",
+            "schema": {
+              "$ref": "#/definitions/ChatRoleInfo"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "The request has succeeded and a new resource has been created as a result.",
+            "schema": {
+              "$ref": "#/definitions/ChatRoleInfo"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
           },
           "default": {
             "description": "An unexpected error response.",
@@ -504,8 +661,8 @@
           }
         },
         "x-ms-examples": {
-          "Chat_CreateOrUpdateRole": {
-            "$ref": "./examples/Chat_CreateOrUpdateRole.json"
+          "Chat_CreateOrReplaceRole": {
+            "$ref": "./examples/Chat_CreateOrReplaceRole.json"
           }
         }
       },
@@ -523,7 +680,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -531,15 +688,47 @@
           {
             "name": "role",
             "in": "path",
-            "description": "Role name.",
+            "description": "Role name. Must start with 'user.' or 'room.' prefix.",
             "required": true,
             "type": "string",
             "pattern": "^[a-z0-9_.-]{1,64}$"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent"
           }
         ],
         "responses": {
           "204": {
-            "description": "There is no content to send for this request, but the headers may be useful. "
+            "description": "There is no content to send for this request, but the headers may be useful. ",
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
           },
           "default": {
             "description": "An unexpected error response.",
@@ -568,7 +757,7 @@
           "chat"
         ],
         "summary": "Create a new room.",
-        "description": "Create a new room.",
+        "description": "Create a new room with a service-generated ID.",
         "parameters": [
           {
             "$ref": "#/parameters/Azure.Core.Foundations.ApiVersionParameter"
@@ -576,26 +765,30 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
           },
           {
-            "name": "request",
+            "name": "resource",
             "in": "body",
-            "description": "Create room request.",
+            "description": "The resource instance.",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/CreateChatRoomRequest"
+              "$ref": "#/definitions/ChatRoomInfo"
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "The request has succeeded.",
-            "schema": {
-              "$ref": "#/definitions/ChatRoomInfo"
+          "201": {
+            "description": "The request has succeeded and a new resource has been created as a result.",
+            "headers": {
+              "Location": {
+                "type": "string",
+                "format": "uri",
+                "description": "The location of an instance of ChatRoomInfo"
+              }
             }
           },
           "default": {
@@ -633,7 +826,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -673,13 +866,13 @@
           }
         }
       },
-      "patch": {
-        "operationId": "Chat_UpdateRoom",
+      "put": {
+        "operationId": "Chat_CreateOrReplaceRoom",
         "tags": [
           "chat"
         ],
-        "summary": "Update room information.",
-        "description": "Update room information.",
+        "summary": "Create or replace a room.",
+        "description": "Create or replace a room with a client-specified ID.",
         "parameters": [
           {
             "$ref": "#/parameters/Azure.Core.Foundations.ApiVersionParameter"
@@ -687,7 +880,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -701,12 +894,18 @@
             "minLength": 1
           },
           {
-            "name": "request",
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent"
+          },
+          {
+            "name": "resource",
             "in": "body",
-            "description": "Update room request.",
+            "description": "The resource instance.",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateChatRoomRequest"
+              "$ref": "#/definitions/ChatRoomInfo"
             }
           }
         ],
@@ -715,6 +914,194 @@
             "description": "The request has succeeded.",
             "schema": {
               "$ref": "#/definitions/ChatRoomInfo"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "The request has succeeded and a new resource has been created as a result.",
+            "schema": {
+              "$ref": "#/definitions/ChatRoomInfo"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/Azure.Core.Foundations.ErrorResponse"
+            },
+            "headers": {
+              "x-ms-error-code": {
+                "type": "string",
+                "description": "String error code indicating what went wrong."
+              }
+            }
+          }
+        },
+        "x-ms-examples": {
+          "Chat_CreateOrReplaceRoom": {
+            "$ref": "./examples/Chat_CreateOrReplaceRoom.json"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "Chat_UpdateRoom",
+        "tags": [
+          "chat"
+        ],
+        "summary": "Update room information.",
+        "description": "Update room information.",
+        "consumes": [
+          "application/merge-patch+json"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/parameters/Azure.Core.Foundations.ApiVersionParameter"
+          },
+          {
+            "name": "hub",
+            "in": "path",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
+            "required": true,
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
+          },
+          {
+            "name": "roomId",
+            "in": "path",
+            "description": "Room identifier.",
+            "required": true,
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent"
+          },
+          {
+            "name": "resource",
+            "in": "body",
+            "description": "The resource instance.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ChatRoomInfoCreateOrUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The request has succeeded.",
+            "schema": {
+              "$ref": "#/definitions/ChatRoomInfo"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "The request has succeeded and a new resource has been created as a result.",
+            "schema": {
+              "$ref": "#/definitions/ChatRoomInfo"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
             }
           },
           "default": {
@@ -750,7 +1137,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -762,11 +1149,43 @@
             "required": true,
             "type": "string",
             "minLength": 1
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent"
           }
         ],
         "responses": {
           "204": {
-            "description": "There is no content to send for this request, but the headers may be useful. "
+            "description": "There is no content to send for this request, but the headers may be useful. ",
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
           },
           "default": {
             "description": "An unexpected error response.",
@@ -790,7 +1209,7 @@
     },
     "/api/hubs/{hub}/chat/rooms/{roomId}/members": {
       "get": {
-        "operationId": "Chat_GetRoomMembers",
+        "operationId": "Chat_ListRoomMembers",
         "tags": [
           "chat"
         ],
@@ -803,7 +1222,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -821,10 +1240,7 @@
           "200": {
             "description": "The request has succeeded.",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/ChatRoomMember"
-              }
+              "$ref": "#/definitions/PagedChatRoomMember"
             }
           },
           "default": {
@@ -841,20 +1257,23 @@
           }
         },
         "x-ms-examples": {
-          "Chat_GetRoomMembers": {
-            "$ref": "./examples/Chat_GetRoomMembers.json"
+          "Chat_ListRoomMembers": {
+            "$ref": "./examples/Chat_ListRoomMembers.json"
           }
+        },
+        "x-ms-pageable": {
+          "nextLinkName": "nextLink"
         }
       }
     },
     "/api/hubs/{hub}/chat/rooms/{roomId}/members/{userId}": {
       "put": {
-        "operationId": "Chat_AddOrUpdateRoomMember",
+        "operationId": "Chat_CreateOrReplaceRoomMember",
         "tags": [
           "chat"
         ],
-        "summary": "Add or update a room member.",
-        "description": "Add or update a room member.",
+        "summary": "Create or replace a room member.",
+        "description": "Create or replace a room member.",
         "parameters": [
           {
             "$ref": "#/parameters/Azure.Core.Foundations.ApiVersionParameter"
@@ -862,7 +1281,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -878,24 +1297,91 @@
           {
             "name": "userId",
             "in": "path",
-            "description": "User identifier.",
+            "description": "User ID of the member.",
             "required": true,
             "type": "string",
             "minLength": 1
           },
           {
-            "name": "request",
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent"
+          },
+          {
+            "name": "resource",
             "in": "body",
-            "description": "Update room member request.",
+            "description": "The resource instance.",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UpdateChatRoomMemberRequest"
+              "$ref": "#/definitions/ChatRoomMember"
             }
           }
         ],
         "responses": {
-          "204": {
-            "description": "There is no content to send for this request, but the headers may be useful. "
+          "200": {
+            "description": "The request has succeeded.",
+            "schema": {
+              "$ref": "#/definitions/ChatRoomMember"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "The request has succeeded and a new resource has been created as a result.",
+            "schema": {
+              "$ref": "#/definitions/ChatRoomMember"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
           },
           "default": {
             "description": "An unexpected error response.",
@@ -911,8 +1397,8 @@
           }
         },
         "x-ms-examples": {
-          "Chat_AddOrUpdateRoomMember": {
-            "$ref": "./examples/Chat_AddOrUpdateRoomMember.json"
+          "Chat_CreateOrReplaceRoomMember": {
+            "$ref": "./examples/Chat_CreateOrReplaceRoomMember.json"
           }
         }
       },
@@ -930,7 +1416,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -946,15 +1432,47 @@
           {
             "name": "userId",
             "in": "path",
-            "description": "User identifier.",
+            "description": "User ID of the member.",
             "required": true,
             "type": "string",
             "minLength": 1
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent"
           }
         ],
         "responses": {
           "204": {
-            "description": "There is no content to send for this request, but the headers may be useful. "
+            "description": "There is no content to send for this request, but the headers may be useful. ",
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
           },
           "default": {
             "description": "An unexpected error response.",
@@ -991,7 +1509,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -1032,12 +1550,12 @@
         }
       },
       "put": {
-        "operationId": "Chat_AddOrUpdateUser",
+        "operationId": "Chat_CreateOrReplaceUser",
         "tags": [
           "chat"
         ],
-        "summary": "Add or update a user.",
-        "description": "Add or update a user.",
+        "summary": "Create or replace a user.",
+        "description": "Create or replace a user.",
         "parameters": [
           {
             "$ref": "#/parameters/Azure.Core.Foundations.ApiVersionParameter"
@@ -1045,7 +1563,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -1059,9 +1577,15 @@
             "minLength": 1
           },
           {
-            "name": "profile",
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent"
+          },
+          {
+            "name": "resource",
             "in": "body",
-            "description": "User profile.",
+            "description": "The resource instance.",
             "required": true,
             "schema": {
               "$ref": "#/definitions/ChatUserProfile"
@@ -1069,8 +1593,69 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "There is no content to send for this request, but the headers may be useful. "
+          "200": {
+            "description": "The request has succeeded.",
+            "schema": {
+              "$ref": "#/definitions/ChatUserProfile"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "The request has succeeded and a new resource has been created as a result.",
+            "schema": {
+              "$ref": "#/definitions/ChatUserProfile"
+            },
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
           },
           "default": {
             "description": "An unexpected error response.",
@@ -1086,8 +1671,8 @@
           }
         },
         "x-ms-examples": {
-          "Chat_AddOrUpdateUser": {
-            "$ref": "./examples/Chat_AddOrUpdateUser.json"
+          "Chat_CreateOrReplaceUser": {
+            "$ref": "./examples/Chat_CreateOrReplaceUser.json"
           }
         }
       },
@@ -1105,7 +1690,7 @@
           {
             "name": "hub",
             "in": "path",
-            "description": "Target hub name, which should start with alphabetic characters and only contain\nalpha-numeric characters or underscore.",
+            "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
             "required": true,
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$"
@@ -1117,11 +1702,43 @@
             "required": true,
             "type": "string",
             "minLength": 1
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId"
+          },
+          {
+            "$ref": "#/parameters/Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent"
           }
         ],
         "responses": {
           "204": {
-            "description": "There is no content to send for this request, but the headers may be useful. "
+            "description": "There is no content to send for this request, but the headers may be useful. ",
+            "headers": {
+              "Repeatability-Result": {
+                "type": "string",
+                "description": "Indicates whether the repeatable request was accepted or rejected.",
+                "enum": [
+                  "accepted",
+                  "rejected"
+                ],
+                "x-ms-enum": {
+                  "name": "RepeatabilityResult",
+                  "modelAsString": false,
+                  "values": [
+                    {
+                      "name": "accepted",
+                      "value": "accepted",
+                      "description": "If the request was accepted and the server guarantees that the server state reflects a single execution of the operation."
+                    },
+                    {
+                      "name": "rejected",
+                      "value": "rejected",
+                      "description": "If the request was rejected because the combination of Repeatability-First-Sent and Repeatability-Request-ID were invalid\nor because the Repeatability-First-Sent value was outside the range of values held by the server."
+                    }
+                  ]
+                }
+              }
+            }
           },
           "default": {
             "description": "An unexpected error response.",
@@ -1232,7 +1849,9 @@
       "properties": {
         "conversationId": {
           "type": "string",
-          "description": "Conversation identifier."
+          "description": "Conversation identifier.",
+          "minLength": 1,
+          "readOnly": true
         },
         "parentRoom": {
           "type": "string",
@@ -1250,7 +1869,9 @@
       "properties": {
         "messageId": {
           "type": "string",
-          "description": "Message identifier."
+          "description": "Message identifier.",
+          "minLength": 1,
+          "readOnly": true
         },
         "createdBy": {
           "type": "string",
@@ -1263,7 +1884,25 @@
         "createdAt": {
           "type": "string",
           "format": "date-time",
-          "description": "Timestamp when the message was created."
+          "description": "Timestamp when the message was created.",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "messageId"
+      ]
+    },
+    "ChatMessageInfoCreateOrUpdate": {
+      "type": "object",
+      "description": "Chat message information.",
+      "properties": {
+        "createdBy": {
+          "type": "string",
+          "description": "User who created the message."
+        },
+        "content": {
+          "$ref": "#/definitions/ContentBody",
+          "description": "Message content."
         }
       }
     },
@@ -1273,7 +1912,9 @@
       "properties": {
         "role": {
           "type": "string",
-          "description": "Role name. Must start with 'user.' or 'room.' prefix."
+          "description": "Role name. Must start with 'user.' or 'room.' prefix.",
+          "pattern": "^[a-z0-9_.-]{1,64}$",
+          "readOnly": true
         },
         "permissions": {
           "type": "array",
@@ -1294,7 +1935,9 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Room identifier."
+          "description": "Room identifier.",
+          "minLength": 1,
+          "readOnly": true
         },
         "title": {
           "type": "string",
@@ -1302,7 +1945,8 @@
         },
         "defaultConversation": {
           "type": "string",
-          "description": "Default conversation ID for this room."
+          "description": "Default conversation ID for this room.",
+          "readOnly": true
         }
       },
       "required": [
@@ -1311,13 +1955,25 @@
         "defaultConversation"
       ]
     },
+    "ChatRoomInfoCreateOrUpdate": {
+      "type": "object",
+      "description": "Represents room information.",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Room title."
+        }
+      }
+    },
     "ChatRoomMember": {
       "type": "object",
       "description": "Represents a room member.",
       "properties": {
         "userId": {
           "type": "string",
-          "description": "User ID of the member."
+          "description": "User ID of the member.",
+          "minLength": 1,
+          "readOnly": true
         },
         "role": {
           "type": "string",
@@ -1335,7 +1991,9 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "User identifier."
+          "description": "User identifier.",
+          "minLength": 1,
+          "readOnly": true
         },
         "nickname": {
           "type": "string",
@@ -1366,46 +2024,28 @@
         }
       }
     },
-    "CreateChatRoomRequest": {
+    "Hub": {
       "type": "object",
-      "description": "Request to create a new room.",
+      "description": "Represents a hub (virtual parent resource for URL routing).",
       "properties": {
-        "id": {
+        "hub": {
           "type": "string",
-          "description": "Optional room ID. If not provided, one will be generated."
-        },
-        "title": {
-          "type": "string",
-          "description": "Room title."
+          "description": "Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore.",
+          "pattern": "^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$",
+          "readOnly": true
         }
       },
       "required": [
-        "title"
+        "hub"
       ]
     },
-    "CreateOrUpdateChatRoleInfoRequest": {
+    "PagedChatMessageInfo": {
       "type": "object",
-      "description": "Request to create or update a role.",
+      "description": "Paged collection of ChatMessageInfo items",
       "properties": {
-        "permissions": {
+        "value": {
           "type": "array",
-          "description": "Permissions associated with the role. Do not mix user permissions and room permissions in one role.",
-          "items": {
-            "type": "string"
-          }
-        }
-      },
-      "required": [
-        "permissions"
-      ]
-    },
-    "QueryChatMessageResponse": {
-      "type": "object",
-      "description": "Response for querying messages.",
-      "properties": {
-        "messages": {
-          "type": "array",
-          "description": "List of messages.",
+          "description": "The ChatMessageInfo items on this page",
           "items": {
             "$ref": "#/definitions/ChatMessageInfo"
           }
@@ -1413,17 +2053,20 @@
         "nextLink": {
           "type": "string",
           "format": "uri",
-          "description": "URL to fetch the next page of messages."
+          "description": "The link to the next page of items"
         }
-      }
+      },
+      "required": [
+        "value"
+      ]
     },
-    "QueryChatRolesResponse": {
+    "PagedChatRoleInfo": {
       "type": "object",
-      "description": "Response for querying roles.",
+      "description": "Paged collection of ChatRoleInfo items",
       "properties": {
-        "roles": {
+        "value": {
           "type": "array",
-          "description": "List of roles.",
+          "description": "The ChatRoleInfo items on this page",
           "items": {
             "$ref": "#/definitions/ChatRoleInfo"
           }
@@ -1431,49 +2074,33 @@
         "nextLink": {
           "type": "string",
           "format": "uri",
-          "description": "URL to fetch the next page of roles."
+          "description": "The link to the next page of items"
         }
       },
       "required": [
-        "roles"
+        "value"
       ]
     },
-    "UpdateChatMessageRequest": {
+    "PagedChatRoomMember": {
       "type": "object",
-      "description": "Request to update a message.\nContains parts of MessageInfo excluding conversation (which is already known from the URL).",
+      "description": "Paged collection of ChatRoomMember items",
       "properties": {
-        "createdBy": {
-          "type": "string",
-          "description": "Optional. The user who created the message."
+        "value": {
+          "type": "array",
+          "description": "The ChatRoomMember items on this page",
+          "items": {
+            "$ref": "#/definitions/ChatRoomMember"
+          }
         },
-        "content": {
-          "$ref": "#/definitions/ContentBody",
-          "description": "Message content."
-        }
-      }
-    },
-    "UpdateChatRoomMemberRequest": {
-      "type": "object",
-      "description": "Request to update a room member.",
-      "properties": {
-        "role": {
+        "nextLink": {
           "type": "string",
-          "description": "Room role assigned to the user within this room."
+          "format": "uri",
+          "description": "The link to the next page of items"
         }
       },
       "required": [
-        "role"
+        "value"
       ]
-    },
-    "UpdateChatRoomRequest": {
-      "type": "object",
-      "description": "Request to update a room.",
-      "properties": {
-        "title": {
-          "type": "string",
-          "description": "New room title."
-        }
-      }
     }
   },
   "parameters": {
@@ -1486,6 +2113,25 @@
       "minLength": 1,
       "x-ms-parameter-location": "method",
       "x-ms-client-name": "apiVersion"
+    },
+    "Azure.Core.RepeatabilityRequestHeaders.repeatabilityFirstSent": {
+      "name": "Repeatability-First-Sent",
+      "in": "header",
+      "description": "Specifies the date and time at which the request was first created.",
+      "required": false,
+      "type": "string",
+      "format": "date-time",
+      "x-ms-parameter-location": "method",
+      "x-ms-client-name": "repeatabilityFirstSent"
+    },
+    "Azure.Core.RepeatabilityRequestHeaders.repeatabilityRequestId": {
+      "name": "Repeatability-Request-ID",
+      "in": "header",
+      "description": "An opaque, globally-unique, client-generated string identifier for the request.",
+      "required": false,
+      "type": "string",
+      "x-ms-parameter-location": "method",
+      "x-ms-client-name": "repeatabilityRequestId"
     }
   }
 }

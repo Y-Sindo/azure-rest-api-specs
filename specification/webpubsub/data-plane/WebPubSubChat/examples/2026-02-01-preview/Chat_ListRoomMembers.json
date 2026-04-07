@@ -1,0 +1,25 @@
+{
+  "parameters": {
+    "api-version": "2026-02-01-preview",
+    "hub": "chat_hub",
+    "roomId": "room1"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "userId": "user1",
+            "role": "room.operator"
+          },
+          {
+            "userId": "user2",
+            "role": "room.member"
+          }
+        ]
+      }
+    }
+  },
+  "operationId": "Chat_ListRoomMembers",
+  "title": "Chat_ListRoomMembers"
+}

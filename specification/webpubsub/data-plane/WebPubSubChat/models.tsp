@@ -1,10 +1,24 @@
 import "@typespec/http";
 import "@typespec/rest";
 import "@azure-tools/typespec-azure-core";
+import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
+using TypeSpec.Rest;
+using Azure.ClientGenerator.Core;
 
 namespace WebPubSubChat;
+
+/** Represents a hub (virtual parent resource for URL routing). */
+@resource("api/hubs")
+model Hub {
+  /** Target hub name, which should start with alphabetic characters and only contain alpha-numeric characters or underscore. */
+  @key("hub")
+  @visibility(Lifecycle.Read)
+  @pattern("^[A-Za-z][A-Za-z0-9_`,.[\\]]{0,127}$")
+  @clientName("hubName", "csharp")
+  hub: string;
+}
 
 /** Chat conversation identifier. */
 model ChatConversation {
@@ -22,8 +36,13 @@ model ChatConversation {
 }
 
 /** Represents conversation information. */
+@resource("chat/conversations")
+@parentResource(Hub)
 model ChatConversationInfo {
   /** Conversation identifier. */
+  @key("conversationId")
+  @visibility(Lifecycle.Read)
+  @minLength(1)
   conversationId: string;
 
   /** Parent room identifier. */
@@ -31,9 +50,14 @@ model ChatConversationInfo {
 }
 
 /** Chat message information. */
+@resource("messages")
+@parentResource(ChatConversationInfo)
 model ChatMessageInfo {
   /** Message identifier. */
-  messageId?: string;
+  @key("messageId")
+  @visibility(Lifecycle.Read)
+  @minLength(1)
+  messageId: string;
 
   /** User who created the message. */
   createdBy?: string;
@@ -42,6 +66,7 @@ model ChatMessageInfo {
   content?: ContentBody;
 
   /** Timestamp when the message was created. */
+  @visibility(Lifecycle.Read)
   createdAt?: utcDateTime;
 }
 
@@ -50,8 +75,13 @@ model ChatMessageInfo {
  * A role name must start with 'user.' or 'room.' prefix.
  * A role must contain either user permissions or room permissions, but not both.
  */
+@resource("chat/roles")
+@parentResource(Hub)
 model ChatRoleInfo {
   /** Role name. Must start with 'user.' or 'room.' prefix. */
+  @key("role")
+  @visibility(Lifecycle.Read)
+  @pattern("^[a-z0-9_.-]{1,64}$")
   role: string;
 
   /** Permissions associated with the role. Do not mix user permissions and room permissions in one role. */
@@ -59,20 +89,31 @@ model ChatRoleInfo {
 }
 
 /** Represents room information. */
+@resource("chat/rooms")
+@parentResource(Hub)
 model ChatRoomInfo {
   /** Room identifier. */
+  @key("roomId")
+  @visibility(Lifecycle.Read)
+  @minLength(1)
   id: string;
 
   /** Room title. */
   title: string;
 
   /** Default conversation ID for this room. */
+  @visibility(Lifecycle.Read)
   defaultConversation: string;
 }
 
 /** Represents a room member. */
+@resource("members")
+@parentResource(ChatRoomInfo)
 model ChatRoomMember {
   /** User ID of the member. */
+  @key("userId")
+  @visibility(Lifecycle.Read)
+  @minLength(1)
   userId: string;
 
   /** Room role assigned to the user within this room. */
@@ -80,8 +121,13 @@ model ChatRoomMember {
 }
 
 /** Represents a user profile in the chat system. */
+@resource("chat/users")
+@parentResource(Hub)
 model ChatUserProfile {
   /** User identifier. */
+  @key("userId")
+  @visibility(Lifecycle.Read)
+  @minLength(1)
   id: string;
 
   /** User's display nickname. */
@@ -98,65 +144,4 @@ model ContentBody {
 
   /** Binary content (base64 encoded). */
   binary?: bytes;
-}
-
-/** Request to create a new room. */
-model CreateChatRoomRequest {
-  /** Optional room ID. If not provided, one will be generated. */
-  id?: string;
-
-  /** Room title. */
-  title: string;
-}
-
-/** Request to create or update a role. */
-model CreateOrUpdateChatRoleInfoRequest {
-  /** Permissions associated with the role. Do not mix user permissions and room permissions in one role. */
-  permissions: string[];
-}
-
-/** Response for querying messages. */
-model QueryChatMessageResponse {
-  /** List of messages. */
-  @pageItems
-  messages?: ChatMessageInfo[];
-
-  /** URL to fetch the next page of messages. */
-  @nextLink
-  nextLink?: url;
-}
-
-/** Response for querying roles. */
-model QueryChatRolesResponse {
-  /** List of roles. */
-  @pageItems
-  roles: ChatRoleInfo[];
-
-  /** URL to fetch the next page of roles. */
-  @nextLink
-  nextLink?: url;
-}
-
-/**
- * Request to update a message.
- * Contains parts of MessageInfo excluding conversation (which is already known from the URL).
- */
-model UpdateChatMessageRequest {
-  /** Optional. The user who created the message. */
-  createdBy?: string;
-
-  /** Message content. */
-  content?: ContentBody;
-}
-
-/** Request to update a room member. */
-model UpdateChatRoomMemberRequest {
-  /** Room role assigned to the user within this room. */
-  role: string;
-}
-
-/** Request to update a room. */
-model UpdateChatRoomRequest {
-  /** New room title. */
-  title?: string;
 }

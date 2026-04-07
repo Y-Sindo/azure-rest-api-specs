@@ -1,0 +1,29 @@
+{
+  "parameters": {
+    "api-version": "2026-02-01-preview",
+    "hub": "chat_hub",
+    "userId": "user1",
+    "resource": {
+      "nickname": "John",
+      "role": "user.normal"
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "user1",
+        "nickname": "John",
+        "role": "user.normal"
+      }
+    },
+    "201": {
+      "body": {
+        "id": "user1",
+        "nickname": "John",
+        "role": "user.normal"
+      }
+    }
+  },
+  "operationId": "Chat_CreateOrReplaceUser",
+  "title": "Chat_CreateOrReplaceUser"
+}

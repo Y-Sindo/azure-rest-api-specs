@@ -8,7 +8,7 @@
   "responses": {
     "200": {
       "body": {
-        "messages": [
+        "value": [
           {
             "messageId": "msg1",
             "createdBy": "user1",

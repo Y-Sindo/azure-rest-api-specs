@@ -3,27 +3,26 @@
     "api-version": "2026-02-01-preview",
     "hub": "chat_hub",
     "roomId": "room1",
-    "contentType": "application/merge-patch+json",
     "resource": {
-      "title": "Updated Room Title"
+      "title": "General Chat"
     }
   },
   "responses": {
     "200": {
       "body": {
         "id": "room1",
-        "title": "Updated Room Title",
+        "title": "General Chat",
         "defaultConversation": "c.room1"
       }
     },
     "201": {
       "body": {
         "id": "room1",
-        "title": "Updated Room Title",
+        "title": "General Chat",
         "defaultConversation": "c.room1"
       }
     }
   },
-  "operationId": "Chat_UpdateRoom",
-  "title": "Chat_UpdateRoom"
+  "operationId": "Chat_CreateOrReplaceRoom",
+  "title": "Chat_CreateOrReplaceRoom"
 }
